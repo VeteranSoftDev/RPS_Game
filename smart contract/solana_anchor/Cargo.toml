@@ -1,0 +1,23 @@
+[package]
+name = "solana_anchor"
+version = "0.1.0"
+description = "Created with Anchor"
+repository = "https://github.com/smartcontractkit/solana-example"
+edition = "2018"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "solana_anchor"
+
+[features]
+no-entrypoint = []
+no-idl = []
+cpi = ["no-entrypoint"]
+default = []
+
+[dependencies]
+anchor-lang = "0.17.0"
+spl-token = { version="3.1.1", features = [ "no-entrypoint" ] }
+metaplex-token-metadata = {  version = "0.0.1", features = ["no-entrypoint"] }
+metaplex-auction = {  version = "0.0.1", features = ["no-entrypoint"] }
+borsh = "0.9"

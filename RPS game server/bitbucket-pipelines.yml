@@ -1,0 +1,92 @@
+# This is a sample build configuration for .NET Core.
+# Check our guides at https://confluence.atlassian.com/x/5Q4SMw for more examples.
+# Only use spaces to indent your .yml configuration.
+# -----
+# You can specify a custom docker image from Docker Hub as your build environment.
+image: atlassian/default-image:2
+# enable Docker for your repository
+options:
+  docker: true
+
+pipelines:
+  default:
+    - step:
+        name: run and test APIs
+        image: microsoft/dotnet:sdk
+        caches:
+          - dotnetcore
+        script: # Modify the commands below to build your repository.
+          - export PROJECT_NAME=src/RockPaperScissors.API.GameService
+          - export TEST_NAME=tests/RockPaperScissors.API.GameService.Tests
+          - dotnet restore
+          - dotnet build $PROJECT_NAME
+          - dotnet test $TEST_NAME
+    - step:
+        name: run and test Models
+        image: microsoft/dotnet:sdk
+        caches:
+          - dotnetcore
+        script: # Modify the commands below to build your repository.
+          - export PROJECT_NAME=src/RockPaperScissors.Data.Model
+          - export TEST_NAME=tests/RockPaperScissors.Data.Model.Tests
+          - dotnet restore
+          - dotnet build $PROJECT_NAME
+          - dotnet test $TEST_NAME
+    - step:
+        name: run and test Core
+        image: microsoft/dotnet:sdk
+        caches:
+          - dotnetcore
+        script: # Modify the commands below to build your repository.
+          - export PROJECT_NAME=src/RockPaperScissors.Core.Services
+          - export TEST_NAME=tests/RockPaperScissors.Core.Services.Tests
+          - dotnet restore
+          - dotnet build $PROJECT_NAME
+          - dotnet test $TEST_NAME
+    - step:
+        name: build and publish docker image.
+        services:
+          - docker # enable Docker for your repository
+        script: # Modify the commands below to build your repository.
+
+
+          # set DOCKER_HUB_USERNAME and DOCKER_HUB_PASSWORD as environment variables
+          # Docker variables
+          - export IMAGE_NAME="${DOCKER_HUB_USERNAME}/${BITBUCKET_REPO_SLUG}:${BITBUCKET_BUILD_NUMBER}"
+          # build the Docker image (this will use the Dockerfile in the root of the repo)
+          - docker build -t $IMAGE_NAME .
+          # authenticate with the Docker Hub registry
+          - docker login --username $DOCKER_HUB_USERNAME --password $DOCKER_HUB_PASSWORD
+          # push the new Docker image to the Docker registry
+          - docker push $IMAGE_NAME
+    - step:
+        name: deploy-to-ecs
+        image: atlassian/pipelines-awscli:latest
+        deployment: test
+        script:
+          # AWS authentication variables
+          # set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY as environment variables
+          # set AWS_SECURITY_TOKEN and AWS_SESSION_TOKEN as environment variables if using temporary credentials via AWS STS
+          - export AWS_DEFAULT_REGION=${AWS_REGION} 
+          # Dockerhub Authentication variables
+          # set DOCKER_HUB_USERNAME and DOCKER_HUB_PASSWORD as environment variables
+          # Docker variables
+          - export IMAGE_NAME="${DOCKER_HUB_USERNAME}/${BITBUCKET_REPO_SLUG}:${BITBUCKET_BUILD_NUMBER}"
+          # ECS variables
+          - export ECS_CLUSTER_NAME="${BITBUCKET_REPO_OWNER}"
+          - export ECS_SERVICE_NAME="${BITBUCKET_REPO_SLUG}"
+          - export ECS_TASK_NAME="${BITBUCKET_REPO_SLUG}"
+          # Create ECS cluster, task, service
+          - aws ecs list-clusters | grep "${ECS_CLUSTER_NAME}" || aws ecs create-cluster --cluster-name "${ECS_CLUSTER_NAME}"
+          # Updating the existing cluster, task, service
+          - export TASK_VERSION=$(aws ecs register-task-definition
+            --family "${ECS_TASK_NAME}"
+            --container-definitions
+            '[{"name":"app","image":"'"${IMAGE_NAME}"'","memory":1024}]'
+            | jq --raw-output '.taskDefinition.revision')
+          - echo "Registered ECS Task Definition:" "${TASK_VERSION}"
+          # Create ECS Service
+          - aws ecs list-services --cluster "${ECS_CLUSTER_NAME}"  | grep "${ECS_SERVICE_NAME}" || aws ecs create-service --service-name "${ECS_SERVICE_NAME}" --cluster "${ECS_CLUSTER_NAME}" --task-definition "${ECS_TASK_NAME}" --desired-count 1
+          - aws ecs update-service --cluster "${ECS_CLUSTER_NAME}" --service "${ECS_SERVICE_NAME}" --task-definition "${ECS_TASK_NAME}:${TASK_VERSION}"
+          # Follow https://docs.aws.amazon.com/AmazonECS/latest/developerguide/launch_container_instance.html for instrunctions
+          # needed to provide the compute resources (EC2 instances) that the tasks will run on.

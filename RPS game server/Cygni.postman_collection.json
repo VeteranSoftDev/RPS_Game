@@ -1,0 +1,165 @@
+{
+	"info": {
+		"_postman_id": "140585c0-64da-45a1-999d-eff75ce74f93",
+		"name": "Cygni",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get Game",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:{{port}}/api/games/f86df7f6-21b7-49df-9326-836e3e429abf",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "{{port}}",
+					"path": [
+						"api",
+						"games",
+						"f86df7f6-21b7-49df-9326-836e3e429abf"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Game",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:{{port}}/api/games/{{gamename}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "{{port}}",
+					"path": [
+						"api",
+						"games",
+						"{{gamename}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Join Game",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:{{port}}/api/games/{{gamename}}/{{player1}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "{{port}}",
+					"path": [
+						"api",
+						"games",
+						"{{gamename}}",
+						"{{player1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Join Game 2",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:{{port}}/api/games/{{gamename}}/{{player2}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "{{port}}",
+					"path": [
+						"api",
+						"games",
+						"{{gamename}}",
+						"{{player2}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Move 1st",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:{{port}}/api/games/{{gamename}}/{{player1}}/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "{{port}}",
+					"path": [
+						"api",
+						"games",
+						"{{gamename}}",
+						"{{player1}}",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Move 2nd",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:{{port}}/api/games/{{gamename}}/{{player2}}/0",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "{{port}}",
+					"path": [
+						"api",
+						"games",
+						"{{gamename}}",
+						"{{player2}}",
+						"0"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
